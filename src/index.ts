@@ -4,6 +4,7 @@ import promptSync from "prompt-sync";
 import UserService from "./services/UserService";
 import UserRepository from "./repository/UserRepository";
 import PaymentService from "./services/PaymentService";
+import PaymentFactory from "./factory/PaymentFactory";
 
 const prompt = promptSync();
 
@@ -34,7 +35,7 @@ function main() {
                     const creditCardCVV = parseInt(prompt("CVV: "));
                     if(!PaymentService.validateCardDetails({cardNumber: creditCardNumber, cvv: creditCardCVV}))
                         break;
-                    
+                    const creditCard = PaymentFactory.createPaymentMethod("Credit Card",{cardNumber:creditCardNumber,cvv:creditCardCVV});
                     break;
 
                 case 2:

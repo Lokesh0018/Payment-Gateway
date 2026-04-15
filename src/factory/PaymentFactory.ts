@@ -1,5 +1,4 @@
 import { UserType, PaymentType, Credit, Debit, UPI, Wallet, Banking } from "../types/enum";
-import User from "../models/User";
 import CreditCard from "../payment methods/CreditCard";
 import DebitCard from "../payment methods/DebitCard";
 import Upi from "../payment methods/Upi";
@@ -8,7 +7,7 @@ import NetBanking from "../payment methods/NetBanking";
 
 export default class PaymentFactory {
 
-    createPaymentMethod(paymentType: PaymentType, paymentDetails: Credit | Debit | UPI | Wallet | Banking):CreditCard | DebitCard | Upi | DigitalWallet | NetBanking {
+    static createPaymentMethod(paymentType: PaymentType, paymentDetails: Credit | Debit | UPI | Wallet | Banking):CreditCard | DebitCard | Upi | DigitalWallet | NetBanking {
         switch (paymentType) {
             case "Credit Card":
                     return new CreditCard(paymentDetails as Credit);
