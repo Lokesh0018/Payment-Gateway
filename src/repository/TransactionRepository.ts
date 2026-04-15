@@ -1,12 +1,12 @@
 import Transaction from "../models/Transaction";
-import User from "../models/user";
+import User from "../models/User";
 
 export default class TransactionRepository {
 
-    static #TransactionRepo: Record<User["userId"], Transaction[]> = {};
+    static #TransactionRepo: Record<User["email"], Transaction[]> = {};
 
     static addTransaction(transaction: Transaction): void {
-        const userId: string = transaction.userId;
+        const userId: string = transaction.email;
         if (!this.#TransactionRepo[userId])
             this.#TransactionRepo[userId] = [];
         this.#TransactionRepo[userId].push(transaction);

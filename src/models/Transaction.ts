@@ -1,16 +1,16 @@
-import { PaymentType } from "../types/enums";
+import { PaymentType } from "../types/enum";
 
 export default class Transaction {
 
-    userId: string;
+    email: string;
     transactionId: string;
     paymentMethod:PaymentType;
     transactionAmount: number;
     transactionTimeStamp:Date;
     transactionStatus: "Success" | "Failed" | "Refunded";
 
-    constructor(userId: string, paymentMethod:PaymentType, transactionAmount: number,transactionTimeStamp:Date, transactionStatus: "Success" | "Failed" | "Refunded") {
-        this.userId = userId;
+    constructor(email: string, paymentMethod:PaymentType, transactionAmount: number,transactionTimeStamp:Date, transactionStatus: "Success" | "Failed" | "Refunded") {
+        this.email = email;
         this.transactionId = this.generateTransaction();
         this.transactionAmount = transactionAmount;
         this.paymentMethod = paymentMethod;

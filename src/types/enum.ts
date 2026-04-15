@@ -2,16 +2,19 @@ export type UserType = {
     username: string;
     email: string;
     phno: string;
+    password:string;
 }
 
 export type Credit = {
     cardNumber: number;
     cvv: number;
+    expiry:string;
 };
 
 export type Debit = {
     cardNumber: number;
     cvv: number;
+    expiry:string;
 };
 
 export type UPI = {

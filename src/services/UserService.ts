@@ -7,37 +7,44 @@ const prompt = promptSync();
 export default class UserService {
 
     static registerUser(): void {
-        const username = prompt("Enter username: ");
-        const email = prompt("Enter email: ");
-        const phno = prompt("Enter phone number: ");
+        const username:string = prompt("Enter Name: ");
+        const email:string = prompt("Enter Email: ");
+        const phno:string = prompt("Enter Phone: ");
+        const password:string = prompt("Enter Password: ");
 
-        if (!username || !email || !phno) {
+        if (!username || !email || !phno || !password) {
             console.log("All fields are required. Please try again.");
             return;
         }
 
-        if (UserRepository.getUser(username)) {
-            console.log("User already exists!\n You can login with the same username.");
+        if (UserRepository.getUser(email)) {
+            console.log(`User already exists!\n You can login with the same email ${email}`);
             return;
         }
 
-        const user = new User({username, email, phno});
+        const user = new User({username, email, phno, password});
         UserRepository.addUser(user);
 
-        console.log("Registration successful!");
+        console.log("✅ Registration Successful!");
     }
 
-    static loginUser(): string | null {
-        const username = prompt("Enter username: ");
+    static loginUser(): User | null {
+        const email:string = prompt("Enter Email: ");
+        const password:string = prompt("Enter Password: ");
 
-        const user = UserRepository.getUser(username);
+        const user = UserRepository.getUser(email);
 
         if (!user) {
-            console.log("Invalid User!");
+            console.log("❌ Invalid User!");
             return null;
         }
 
-        console.log("Login successful!");
-        return username;
+        if(user.getPassword() !== password){
+            console.log("❌ Password Incorrect");
+            return null;
+        }
+
+        console.log("✅ Login Successful!");
+        return user;
     }
 }

@@ -1,4 +1,4 @@
-import { UserType, PaymentType, Credit, Debit, UPI, Wallet, Banking } from "../types/enum";
+import { PaymentType, Credit, Debit, UPI, Wallet, Banking } from "../types/enum";
 import CreditCard from "../payment methods/CreditCard";
 import DebitCard from "../payment methods/DebitCard";
 import Upi from "../payment methods/Upi";

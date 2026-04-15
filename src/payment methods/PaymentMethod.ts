@@ -1,9 +1,9 @@
-import { RequireOtp } from "../interfaces/OtpVerifiable";
+import { OtpMethods, RequireOtp } from "../interfaces/OtpVerifiable";
 import Refundable from "../interfaces/Refundable";
 import Savable from "../interfaces/Savable";
 import { PaymentType } from "../types/enum";
 
-export default abstract class PaymentMethod implements RequireOtp,Refundable,Savable {
+export default abstract class PaymentMethod implements RequireOtp,Refundable,Savable,OtpMethods {
     
     private dailyLimit:number;
     private transactionFee:number;
@@ -33,5 +33,7 @@ export default abstract class PaymentMethod implements RequireOtp,Refundable,Sav
     abstract isRefundable(): boolean;
     abstract isSavable(): boolean;
     abstract getPaymentType(): PaymentType;
+    abstract verifyOtp(otp: number): boolean;
+    abstract generateOtp(): number;
 
 }
