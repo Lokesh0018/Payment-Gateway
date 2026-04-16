@@ -4,7 +4,7 @@ import DigitalPayments from "./DigitalPayments";
 export default class DigitalWallet extends DigitalPayments {
     
     constructor(walletDetails:Wallet){
-        super("Wallet",walletDetails,50000,1.5);
+        super("Wallet",walletDetails,50000,1);
     }
 
     isRefundable(): boolean {
