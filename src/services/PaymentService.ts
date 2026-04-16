@@ -3,6 +3,7 @@ import User from "../models/User";
 import PaymentMethod from "../payment methods/PaymentMethod";
 import TransactionRepository from "../repository/TransactionRepository";
 import { Credit, Debit } from "../types/enum";
+import PaymentRepository from "../repository/PaymentRepository";
 
 const prompt = promptSync();
 
@@ -82,24 +83,35 @@ export default class PaymentService {
         console.log(`\nTransaction Id: ${transaction.transactionId}`)
     }
 
-    static refund(email: User["email"]): boolean {
+    static refund(email: User["email"]) {
         const transactionId: string = prompt("Enter Transaction Id: ");
         console.log("\nChecking Refund Eligibility...\n");
         const transactions = TransactionRepository.getTransactions(email);
         const transaction = transactions.find(
             (t) => t.transactionId === transactionId
         );
+
         if (!transaction) {
-            console.log("❌ Refund Failed: Transaction not found");
-            return false;
+            console.log("\n❌ Refund Failed: Transaction not found");
+            return;
         }
+
         if (transaction.transactionStatus === "Refunded") {
-            console.log("Already Refunded !");
-            return false;
+            console.log("\nAlready Refunded !");
+            return;
         }
-        paymentMethod.setDailyLimit(paymentMethod.getDailyLimit() + amount);
+
+        if(transaction.transactionStatus === "Failed") {
+            console.log("\n❌ It was a Failed Transaction !");
+            return;
+        }
+
+        const paymentType = transaction.paymentMethod;
+        const paymentMethod = PaymentRepository.getPaymentMethod(paymentType,email); 
+        let amount = transaction.transactionAmount;
+        amount -= paymentMethod?.calculateFee(amount) ?? 0;
+        paymentMethod!.setDailyLimit(paymentMethod!.getDailyLimit() + amount);
         transaction.transactionStatus = "Refunded";
-        console.log("Refund Success");
-        return true;
+        console.log("\n✅ Refund Initiated Successfully!");
     }
 }

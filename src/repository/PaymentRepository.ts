@@ -7,8 +7,12 @@ import Upi from "../payment methods/Upi";
 import { PaymentType } from "../types/enum";
 
 export default class PaymentRepository {
-
-    static savedPayments: Map<User["email"], Map<PaymentType, PaymentMethod>> = new Map();
+    
+    static savedPayments: Map<User["email"], Map<PaymentType, PaymentMethod>> = new Map([
+        ["1",new Map([
+            ["Credit Card",new CreditCard({cardNumber:1234123412341234,cvv:123,expiry:"1/32"})]
+        ])]
+    ]);
 
     static addPaymentMethod(user: User, paymentMethod: PaymentMethod) {
         const email = user.getEmail();
