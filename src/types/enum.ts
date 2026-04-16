@@ -18,11 +18,13 @@ export type Debit = {
 };
 
 export type UPI = {
-    paymentId: string;
+    upiId: string;
+    pin:string;
 };
 
 export type Wallet = {
-    paymentId: string;
+    walletId: string;
+    balance: number;
 };
 
 export type Banking = {

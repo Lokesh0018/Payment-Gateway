@@ -9,6 +9,7 @@ import PaymentMethod from "./payment methods/PaymentMethod";
 import CreditCard from "./payment methods/CreditCard";
 import DebitCard from "./payment methods/DebitCard";
 import TransactionRepository from "./repository/TransactionRepository";
+import Upi from "./payment methods/Upi";
 const prompt = promptSync();
 
 function main() {
@@ -71,10 +72,23 @@ function main() {
                             break;
 
                         case 3:
-                            const upiId = prompt("UPI ID: ");
+                            const upi: PaymentMethod | undefined = PaymentRepository.getPaymentMethod("UPI",currentUser.getEmail());
+                            if(!upi){
+                                const upiId = prompt("Enter UPI Id: ");
+                                const upiPin = prompt("Enter UPI Pin: ");
+                                if(!PaymentService.validateUpi({"upiId":upiId,"pin":upiPin},currentUser.getPhno()))
+                                    break;
+                                const upi:Upi = PaymentFactory.createPaymentMethod("UPI",{"upiId":upiId,"pin":upiPin}) as Upi;
+                                PaymentRepository.addPaymentMethod(currentUser,upi);
+                            }
+                            else{
+                                const amount:number = parseInt(prompt("Enter Amount: "));
+                                PaymentService.processPayment(currentUser,upi,amount);
+                            }
                             break;
                         case 4:
-                            const walletNumber = prompt("Wallet Number: ");
+                            const walletId = prompt("Enter Wallet Id: ");
+                            const walletBalance = parseInt(prompt("Enter Available Balance: "));
                             break;
                         case 5:
                             currentUser = null;

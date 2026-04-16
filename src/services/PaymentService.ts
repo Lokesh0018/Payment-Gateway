@@ -2,7 +2,7 @@ import promptSync from "prompt-sync"; import Transaction from "../models/Transac
 import User from "../models/User";
 import PaymentMethod from "../payment methods/PaymentMethod";
 import TransactionRepository from "../repository/TransactionRepository";
-import { Credit, Debit } from "../types/enum";
+import { Credit, Debit, UPI } from "../types/enum";
 import PaymentRepository from "../repository/PaymentRepository";
 
 const prompt = promptSync();
@@ -37,6 +37,22 @@ export default class PaymentService {
             console.log("❌ Card Expired");
             return false;
         }
+        return true;
+    }
+
+    static validateUpi(upiDetails:UPI,phno:string):boolean{
+        const upiId = upiDetails.upiId;
+        const upiPin = upiDetails.pin;
+        const upi = upiId.split("@");
+        if(!upiId || upi.length !== 2 || upi[0] !== phno){
+            console.log("\n❌ Invalid UPI Id ");
+            return false;
+        }
+
+        if(!upiPin || (upiPin.length !== 4 && upiPin.length !== 6)){
+            console.log("\n❌ Invalid UPI Pin ");
+        }
+        
         return true;
     }
 
