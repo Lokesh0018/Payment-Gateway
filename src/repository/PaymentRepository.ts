@@ -1,18 +1,10 @@
 import User from "../models/User";
-import CreditCard from "../payment methods/CreditCard";
-import DebitCard from "../payment methods/DebitCard";
-import DigitalWallet from "../payment methods/DigitalWallet";
 import PaymentMethod from "../payment methods/PaymentMethod";
-import Upi from "../payment methods/Upi";
-import { PaymentType } from "../types/enum";
+import { PaymentType } from "../types/Types";
 
 export default class PaymentRepository {
     
-    static savedPayments: Map<User["email"], Map<PaymentType, PaymentMethod>> = new Map([
-        ["1",new Map([
-            ["Credit Card",new CreditCard({cardNumber:1234123412341234,cvv:123,expiry:"1/32"})]
-        ])]
-    ]);
+    private static savedPayments: Map<User["email"], Map<PaymentType, PaymentMethod>> = new Map();
 
     static addPaymentMethod(user: User, paymentMethod: PaymentMethod) {
         const email = user.getEmail();
@@ -30,7 +22,7 @@ export default class PaymentRepository {
         return this.savedPayments.get(email)?.get(paymentType);
     }
 
-    static getPaymentMethods(email: User["email"]) {
+    static getPaymentMethods(email: User["email"]):void {
         const saved = this.savedPayments.get(email);
         if (!saved) {
             console.log("Empty Saved Methods!");

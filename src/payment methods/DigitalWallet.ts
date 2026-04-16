@@ -1,4 +1,4 @@
-import { Wallet } from "../types/enum";
+import { Wallet } from "../types/Types";
 import DigitalPayments from "./DigitalPayments";
 
 export default class DigitalWallet extends DigitalPayments {

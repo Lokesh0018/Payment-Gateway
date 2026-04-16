@@ -1,7 +1,7 @@
 import OtpVerifiable from "../interfaces/OtpVerifiable";
 import Refundable from "../interfaces/Refundable";
 import Savable from "../interfaces/Savable";
-import { Banking, Credit, Debit, PaymentDetails, PaymentType, UPI, Wallet } from "../types/enum";
+import { PaymentDetails, PaymentType } from "../types/Types";
 
 export default abstract class PaymentMethod implements Refundable,Savable,OtpVerifiable {
     

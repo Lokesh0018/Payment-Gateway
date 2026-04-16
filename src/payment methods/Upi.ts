@@ -1,4 +1,4 @@
-import { UPI } from "../types/enum";
+import { UPI } from "../types/Types";
 import DigitalPayments from "./DigitalPayments";
 
 export default class Upi extends DigitalPayments {

@@ -2,14 +2,9 @@ declare var process: any;
 import promptSync from "prompt-sync";
 import UserService from "./services/UserService";
 import PaymentService from "./services/PaymentService";
-import PaymentFactory from "./patterns/PaymentFactory";
 import User from "./models/User";
-import PaymentRepository from "./repository/PaymentRepository";
-import PaymentMethod from "./payment methods/PaymentMethod";
-import CreditCard from "./payment methods/CreditCard";
-import DebitCard from "./payment methods/DebitCard";
-import TransactionRepository from "./repository/TransactionRepository";
-import Upi from "./payment methods/Upi";
+import TransactionService from "./services/TransactionService";
+
 const prompt = promptSync();
 
 function main() {
@@ -38,15 +33,15 @@ function main() {
                     const paymentChoice: number = parseInt(prompt("Enter Payment Method: "));
                     switch (paymentChoice) {
                         case 1:
-                            const creditCard: PaymentMethod | undefined = PaymentRepository.getPaymentMethod("Credit Card", currentUser.getEmail());
+                            const creditCard = PaymentService.getPaymentMethod("Credit Card", currentUser.getEmail());
                             if (!creditCard) {
                                 const cardNumber = parseInt(prompt("Enter Card Number: "));
                                 const cvv = parseInt(prompt("Enter CVV: "));
                                 const expiry = prompt("Enter Expiry: ");
                                 if (!PaymentService.validateCardDetails({ cardNumber: cardNumber, cvv: cvv, expiry: expiry }))
                                     break;
-                                const card: CreditCard = PaymentFactory.createPaymentMethod("Credit Card", { cardNumber: cardNumber, cvv: cvv, expiry: expiry }) as CreditCard;
-                                PaymentRepository.addPaymentMethod(currentUser, card);
+                                const card = PaymentService.createPaymentMethod("Credit Card", { cardNumber: cardNumber, cvv: cvv, expiry: expiry });
+                                PaymentService.addPaymentMethod(currentUser, card);
                             }
                             else {
                                 const amount: number = parseInt(prompt("Enter Amount: "));
@@ -55,15 +50,15 @@ function main() {
                             break;
 
                         case 2:
-                            const debitCard: PaymentMethod | undefined = PaymentRepository.getPaymentMethod("Debit Card", currentUser.getEmail());
+                            const debitCard = PaymentService.getPaymentMethod("Debit Card", currentUser.getEmail());
                             if (!debitCard) {
                                 const cardNumber = parseInt(prompt("Enter Card Number: "));
                                 const cvv = parseInt(prompt("Enter CVV: "));
                                 const expiry = prompt("Enter Expiry: ");
                                 if (!PaymentService.validateCardDetails({ cardNumber: cardNumber, cvv: cvv, expiry: expiry }))
                                     break;
-                                const card: DebitCard = PaymentFactory.createPaymentMethod("Debit Card", { cardNumber: cardNumber, cvv: cvv, expiry: expiry }) as DebitCard;
-                                PaymentRepository.addPaymentMethod(currentUser, card);
+                                const card = PaymentService.createPaymentMethod("Debit Card", { cardNumber: cardNumber, cvv: cvv, expiry: expiry });
+                                PaymentService.addPaymentMethod(currentUser, card);
                             }
                             else {
                                 const amount: number = parseInt(prompt("Enter Amount: "));
@@ -72,14 +67,14 @@ function main() {
                             break;
 
                         case 3:
-                            const upi: PaymentMethod | undefined = PaymentRepository.getPaymentMethod("UPI", currentUser.getEmail());
+                            const upi = PaymentService.getPaymentMethod("UPI", currentUser.getEmail());
                             if (!upi) {
                                 const upiId = prompt("Enter UPI Id: ");
                                 const upiPin = parseInt(prompt("Enter UPI Pin: "));
                                 if (!PaymentService.validateUpi({ "upiId": upiId, "pin": upiPin }, currentUser.getPhno()))
                                     break;
-                                const upi: Upi = PaymentFactory.createPaymentMethod("UPI", { "upiId": upiId, "pin": upiPin }) as Upi;
-                                PaymentRepository.addPaymentMethod(currentUser, upi);
+                                const upi = PaymentService.createPaymentMethod("UPI", { "upiId": upiId, "pin": upiPin });
+                                PaymentService.addPaymentMethod(currentUser, upi);
                             }
                             else {
                                 const amount: number = parseInt(prompt("Enter Amount: "));
@@ -87,14 +82,14 @@ function main() {
                             }
                             break;
                         case 4:
-                            const wallet: PaymentMethod | undefined = PaymentRepository.getPaymentMethod("Wallet", currentUser.getEmail());
+                            const wallet = PaymentService.getPaymentMethod("Wallet", currentUser.getEmail());
                             if (!wallet) {
                                 const walletId = prompt("Enter Wallet Id: ");
                                 const walletBalance = parseInt(prompt("Enter Available Balance: "));
                                 if (!PaymentService.validateWallet({ "walletId": walletId, "balance": walletBalance }))
                                     break;
-                                const wallet = PaymentFactory.createPaymentMethod("Wallet", { "walletId": walletId, "balance": walletBalance });
-                                PaymentRepository.addPaymentMethod(currentUser, wallet);
+                                const wallet = PaymentService.createPaymentMethod("Wallet", { "walletId": walletId, "balance": walletBalance });
+                                PaymentService.addPaymentMethod(currentUser, wallet);
                             }
                             else {
                                 const amount:number = parseInt(prompt("Enter Amount: "));
@@ -106,7 +101,7 @@ function main() {
                             const accNumber = parseInt(prompt("Enter Account Number: "));
                             if(!PaymentService.validateNetBanking({"bankCode":bankCode,"accountNumber":accNumber}))
                                 break;
-                            const banking = PaymentFactory.createPaymentMethod("Net Banking",{"bankCode":bankCode,"accountNumber":accNumber});
+                            const banking = PaymentService.createPaymentMethod("Net Banking",{"bankCode":bankCode,"accountNumber":accNumber});
                             const amount:number = parseInt(prompt("Enter Amount: "));
                             PaymentService.processPayment(currentUser,banking,amount);
                             break;
@@ -117,11 +112,11 @@ function main() {
                     break;
                 case 2:
                     console.log("\nSaved Methods:\n");
-                    PaymentRepository.getPaymentMethods(currentUser!.getEmail());
+                    PaymentService.getPaymentMethods(currentUser!.getEmail());
                     break;
                 case 3:
                     console.log("\nTransaction History:\n");
-                    TransactionRepository.printTransactions(currentUser.getEmail());
+                    TransactionService.printTransactions(currentUser.getEmail());
                     break;
                 case 4:
                     PaymentService.refund(currentUser.getEmail());

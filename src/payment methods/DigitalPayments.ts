@@ -1,4 +1,4 @@
-import { PaymentType, UPI, Wallet } from "../types/enum";
+import { UPI, Wallet } from "../types/Types";
 import PaymentMethod from "./PaymentMethod";
 
 export default abstract class DigitalPayments extends PaymentMethod {

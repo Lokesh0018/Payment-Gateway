@@ -1,15 +1,21 @@
 import promptSync from "prompt-sync"; import Transaction from "../models/Transaction";
 import User from "../models/User";
 import PaymentMethod from "../payment methods/PaymentMethod";
-import TransactionRepository from "../repository/TransactionRepository";
-import { Banking, Credit, Debit, PaymentType, UPI, Wallet } from "../types/enum";
+import { Banking, Credit, Debit, PaymentType, UPI, Wallet } from "../types/Types";
 import PaymentRepository from "../repository/PaymentRepository";
+import TransactionService from "./TransactionService";
+import PaymentFactory from "../patterns/PaymentFactory";
+import CreditCard from "../payment methods/CreditCard";
+import DebitCard from "../payment methods/DebitCard";
+import Upi from "../payment methods/Upi";
+import DigitalWallet from "../payment methods/DigitalWallet";
+import NetBanking from "../payment methods/NetBanking";
 
 const prompt = promptSync();
 
 export default class PaymentService {
 
-    static validateCardDetails(cardDetails: Credit | Debit) {
+    static validateCardDetails(cardDetails: Credit | Debit): boolean {
         if (!cardDetails.cardNumber || typeof cardDetails.cardNumber !== "number" || Math.ceil(Math.log10(cardDetails.cardNumber)) !== 16) {
             console.log("❌ Invalid Card Number")
             return false;
@@ -40,33 +46,33 @@ export default class PaymentService {
         return true;
     }
 
-    static validateUpi(upiDetails:UPI,phno:string):boolean{
+    static validateUpi(upiDetails: UPI, phno: string): boolean {
         const upiId = upiDetails.upiId;
         const upiPin = upiDetails.pin;
         const upi = upiId.split("@");
-        if(!upiId || upi.length !== 2 || upi[0] !== phno){
+        if (!upiId || upi.length !== 2 || upi[0] !== phno) {
             console.log("\n❌ Invalid UPI Id ");
             return false;
         }
 
         const pinLength = Math.ceil(Math.log10(upiPin));
 
-        if(!upiPin || (pinLength !== 4 && pinLength !== 6)){
+        if (!upiPin || (pinLength !== 4 && pinLength !== 6)) {
             console.log("\n❌ Invalid UPI Pin ");
         }
 
         return true;
     }
 
-    static validateWallet(walletDetails:Wallet):boolean{
+    static validateWallet(walletDetails: Wallet): boolean {
         const walletId = walletDetails.walletId;
         const balance = walletDetails.balance;
-        if(!walletId){
+        if (!walletId) {
             console.log("\n❌ Invalid Wallet Id");
             return false;
         }
 
-        if(!balance){
+        if (!balance) {
             console.log("\n❌ Invalid Balance Amount");
             return false;
         }
@@ -74,16 +80,16 @@ export default class PaymentService {
         return true;
     }
 
-    static validateNetBanking(bankingDetails:Banking){
+    static validateNetBanking(bankingDetails: Banking) {
         const bankCode = bankingDetails.bankCode;
         const accNumber = bankingDetails.accountNumber;
 
-        if(!bankCode){
+        if (!bankCode) {
             console.log("\n❌ Invalid Bank Code");
             return false;
         }
 
-        if(!accNumber || Math.ceil(Math.log10(accNumber)) !== 18){
+        if (!accNumber || Math.ceil(Math.log10(accNumber)) !== 18) {
             console.log("\n❌ Invalid Account Number");
             return false;
         }
@@ -93,7 +99,7 @@ export default class PaymentService {
 
     static processPayment(user: User, paymentMethod: PaymentMethod, amount: number): void {
         console.log("\nProcessing Payment...");
-        if(!amount){
+        if (!amount) {
             console.log("❌ Invalid Amount");
             return;
         }
@@ -105,7 +111,7 @@ export default class PaymentService {
 
         if (!paymentMethod.checkLimit(totalAmount)) {
             console.log("❌ Error Daily limit exceeded!");
-            TransactionRepository.addTransaction(transaction);
+            TransactionService.addTransaction(transaction);
             return;
         }
 
@@ -123,7 +129,7 @@ export default class PaymentService {
                         enteredOtp = parseInt(prompt("Enter OTP: "));
                         break;
                     case 2:
-                        TransactionRepository.addTransaction(transaction);
+                        TransactionService.addTransaction(transaction);
                         return;
                     default:
                         console.log("❌ Invalid Choice");
@@ -135,14 +141,14 @@ export default class PaymentService {
 
         console.log("\n✅ Payment Successful!");
         transaction.transactionStatus = "Success";
-        TransactionRepository.addTransaction(transaction);
+        TransactionService.addTransaction(transaction);
         console.log(`\nTransaction Id: ${transaction.transactionId}`)
     }
 
-    static refund(email: User["email"]) {
+    static refund(email: User["email"]): void {
         const transactionId: string = prompt("Enter Transaction Id: ");
         console.log("\nChecking Refund Eligibility...\n");
-        const transactions = TransactionRepository.getTransactions(email);
+        const transactions = TransactionService.getTransactions(email);
         const transaction = transactions.find(
             (t) => t.transactionId === transactionId
         );
@@ -153,10 +159,10 @@ export default class PaymentService {
             return;
         }
 
-        const paymentType:PaymentType = transaction.paymentMethod;
-        const paymentMethod = PaymentRepository.getPaymentMethod(paymentType,email); 
+        const paymentType: PaymentType = transaction.paymentMethod;
+        const paymentMethod = PaymentRepository.getPaymentMethod(paymentType, email);
 
-        if(!paymentMethod?.isRefundable()){
+        if (!paymentMethod?.isRefundable()) {
             console.log(`❌ ${paymentType} was not Eligible for Refund`);
             return;
         }
@@ -166,7 +172,7 @@ export default class PaymentService {
             return;
         }
 
-        if(transaction.transactionStatus === "Failed") {
+        if (transaction.transactionStatus === "Failed") {
             console.log("\n❌ It was a Failed Transaction !");
             return;
         }
@@ -176,5 +182,21 @@ export default class PaymentService {
         paymentMethod!.setDailyLimit(paymentMethod!.getDailyLimit() + amount);
         transaction.transactionStatus = "Refunded";
         console.log("\n✅ Refund Initiated Successfully!");
+    }
+
+    static getPaymentMethod(paymentType: PaymentType, email: User["email"]): PaymentMethod | undefined {
+        return PaymentRepository.getPaymentMethod(paymentType, email);
+    }
+
+    static addPaymentMethod(user: User, paymentMethod: PaymentMethod): void {
+        PaymentRepository.addPaymentMethod(user, paymentMethod);
+    }
+
+    static getPaymentMethods(email: User["email"]): void {
+        PaymentRepository.getPaymentMethods(email);
+    }
+
+    static createPaymentMethod(paymentType: PaymentType, paymentDetails: Credit | Debit | UPI | Wallet | Banking): CreditCard | DebitCard | Upi | DigitalWallet | NetBanking {
+        return PaymentFactory.createPaymentMethod(paymentType,paymentDetails)
     }
 }

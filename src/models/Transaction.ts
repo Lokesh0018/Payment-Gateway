@@ -1,4 +1,5 @@
-import { PaymentType, TransactionStatus } from "../types/enum";
+import TransactionService from "../services/TransactionService";
+import { PaymentType, TransactionStatus } from "../types/Types";
 
 export default class Transaction {
 
@@ -11,7 +12,7 @@ export default class Transaction {
 
     constructor(email: string, paymentMethod:PaymentType, transactionAmount: number,transactionTimeStamp:Date, transactionStatus: TransactionStatus) {
         this.email = email;
-        this.transactionId = this.generateTransaction();
+        this.transactionId = TransactionService.generateTransaction();
         this.transactionAmount = transactionAmount;
         this.paymentMethod = paymentMethod;
         const timeStamp:Date = transactionTimeStamp;
@@ -21,7 +22,4 @@ export default class Transaction {
         this.transactionStatus = transactionStatus;
     }
 
-    generateTransaction(): string {
-        return `TXN-${Math.floor(Math.random() * 9000000) + 1000000}-${Math.floor(Math.random() * 9000000) + 1000000}`;
-    }
 }

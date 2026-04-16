@@ -32,13 +32,6 @@ export type Banking = {
     accountNumber:number;
 }
 
-export type PaymentMethods = {
-    creditCard?: Credit[];
-    debitCard?: Debit[];
-    upi?: UPI[];
-    wallet?: Wallet[];
-};
-
 export type PaymentDetails = Credit | Debit | UPI | Wallet | Banking;
 
 export type PaymentType = "Credit Card" | "Debit Card" | "UPI" | "Wallet" | "Net Banking";

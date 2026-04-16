@@ -1,4 +1,4 @@
-import { Credit } from "../types/enum";
+import { Credit } from "../types/Types";
 import CardPayments from "./CardPayments";
 
 export default class CreditCard extends CardPayments{

@@ -1,4 +1,4 @@
-import { Banking, PaymentType } from "../types/enum";
+import { Banking, PaymentType } from "../types/Types";
 import PaymentMethod from "./PaymentMethod";
 
 export default class NetBanking extends PaymentMethod {

@@ -1,4 +1,4 @@
-import { Debit } from "../types/enum";
+import { Debit } from "../types/Types";
 import CardPayments from "./CardPayments";
 
 export default class DebitCard extends CardPayments {

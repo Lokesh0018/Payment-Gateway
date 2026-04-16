@@ -1,4 +1,4 @@
-import { UserType } from "../types/enum";
+import { UserType } from "../types/Types";
 
 export default class User {
     private username: string;

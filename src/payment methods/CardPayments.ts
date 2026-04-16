@@ -1,4 +1,4 @@
-import { Credit, Debit, PaymentType } from "../types/enum";
+import { Credit, Debit, PaymentType } from "../types/Types";
 import PaymentMethod from "./PaymentMethod";
 
 export default abstract class CardPayments extends PaymentMethod {
