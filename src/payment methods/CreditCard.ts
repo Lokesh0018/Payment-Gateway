@@ -3,8 +3,19 @@ import CardPayments from "./CardPayments";
 
 export default class CreditCard extends CardPayments{
     
-    constructor(paymentDetails:Credit){
-        super("Credit Card",paymentDetails,200000,2);
+    private cardDetails:Credit;
+
+    constructor(cardDetails:Credit){
+        super("Credit Card",cardDetails,200000,2);
+        this.cardDetails = cardDetails;
+    }
+
+    getCardNumber():number{
+        return this.cardDetails.cardNumber;
+    }
+
+    getCvv():number {
+        return this.cardDetails.cvv;
     }
     
 }

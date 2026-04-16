@@ -19,7 +19,7 @@ export type Debit = {
 
 export type UPI = {
     upiId: string;
-    pin:string;
+    pin:number;
 };
 
 export type Wallet = {
@@ -29,7 +29,7 @@ export type Wallet = {
 
 export type Banking = {
     bankCode: string;
-    bankName:string;
+    accountNumber:number;
 }
 
 export type PaymentMethods = {
@@ -38,6 +38,8 @@ export type PaymentMethods = {
     upi?: UPI[];
     wallet?: Wallet[];
 };
+
+export type PaymentDetails = Credit | Debit | UPI | Wallet | Banking;
 
 export type PaymentType = "Credit Card" | "Debit Card" | "UPI" | "Wallet" | "Net Banking";
 

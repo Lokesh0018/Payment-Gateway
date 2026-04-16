@@ -1,8 +1,5 @@
-export interface RequireOtp {
+export default interface OtpVerifiable {
     requireOtp():boolean;
-}
-
-export interface OtpMethods {
     generateOtp():number;
     verifyOtp(otp:number):boolean;
 }

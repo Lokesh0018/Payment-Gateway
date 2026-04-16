@@ -1,16 +1,16 @@
-import { OtpMethods, RequireOtp } from "../interfaces/OtpVerifiable";
+import OtpVerifiable from "../interfaces/OtpVerifiable";
 import Refundable from "../interfaces/Refundable";
 import Savable from "../interfaces/Savable";
-import { Banking, Credit, Debit, PaymentType, UPI, Wallet } from "../types/enum";
+import { Banking, Credit, Debit, PaymentDetails, PaymentType, UPI, Wallet } from "../types/enum";
 
-export default abstract class PaymentMethod implements RequireOtp,Refundable,Savable,OtpMethods {
+export default abstract class PaymentMethod implements Refundable,Savable,OtpVerifiable {
     
     private dailyLimit:number;
     private transactionFee:number;
-    private paymentDetails:Credit | Debit | UPI | Wallet | Banking;
+    private paymentDetails:PaymentDetails;
     private otp:number;
 
-    constructor(dailyLimit:number,transactionFee:number,paymentDetails:Credit | Debit | UPI | Wallet | Banking){
+    constructor(dailyLimit:number,transactionFee:number,paymentDetails:PaymentDetails){
         this.dailyLimit = dailyLimit;
         this.transactionFee = transactionFee;
         this.paymentDetails = paymentDetails;
@@ -33,7 +33,7 @@ export default abstract class PaymentMethod implements RequireOtp,Refundable,Sav
         return amount <= this.dailyLimit;
     }
 
-    getPaymentDetails(): Credit | Debit | UPI | Wallet | Banking{
+    getPaymentDetails(): PaymentDetails{
         return this.paymentDetails;
     }
 

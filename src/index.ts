@@ -2,7 +2,7 @@ declare var process: any;
 import promptSync from "prompt-sync";
 import UserService from "./services/UserService";
 import PaymentService from "./services/PaymentService";
-import PaymentFactory from "./factory/PaymentFactory";
+import PaymentFactory from "./patterns/PaymentFactory";
 import User from "./models/User";
 import PaymentRepository from "./repository/PaymentRepository";
 import PaymentMethod from "./payment methods/PaymentMethod";
@@ -72,28 +72,46 @@ function main() {
                             break;
 
                         case 3:
-                            const upi: PaymentMethod | undefined = PaymentRepository.getPaymentMethod("UPI",currentUser.getEmail());
-                            if(!upi){
+                            const upi: PaymentMethod | undefined = PaymentRepository.getPaymentMethod("UPI", currentUser.getEmail());
+                            if (!upi) {
                                 const upiId = prompt("Enter UPI Id: ");
-                                const upiPin = prompt("Enter UPI Pin: ");
-                                if(!PaymentService.validateUpi({"upiId":upiId,"pin":upiPin},currentUser.getPhno()))
+                                const upiPin = parseInt(prompt("Enter UPI Pin: "));
+                                if (!PaymentService.validateUpi({ "upiId": upiId, "pin": upiPin }, currentUser.getPhno()))
                                     break;
-                                const upi:Upi = PaymentFactory.createPaymentMethod("UPI",{"upiId":upiId,"pin":upiPin}) as Upi;
-                                PaymentRepository.addPaymentMethod(currentUser,upi);
+                                const upi: Upi = PaymentFactory.createPaymentMethod("UPI", { "upiId": upiId, "pin": upiPin }) as Upi;
+                                PaymentRepository.addPaymentMethod(currentUser, upi);
                             }
-                            else{
-                                const amount:number = parseInt(prompt("Enter Amount: "));
-                                PaymentService.processPayment(currentUser,upi,amount);
+                            else {
+                                const amount: number = parseInt(prompt("Enter Amount: "));
+                                PaymentService.processPayment(currentUser, upi, amount);
                             }
                             break;
                         case 4:
-                            const walletId = prompt("Enter Wallet Id: ");
-                            const walletBalance = parseInt(prompt("Enter Available Balance: "));
+                            const wallet: PaymentMethod | undefined = PaymentRepository.getPaymentMethod("Wallet", currentUser.getEmail());
+                            if (!wallet) {
+                                const walletId = prompt("Enter Wallet Id: ");
+                                const walletBalance = parseInt(prompt("Enter Available Balance: "));
+                                if (!PaymentService.validateWallet({ "walletId": walletId, "balance": walletBalance }))
+                                    break;
+                                const wallet = PaymentFactory.createPaymentMethod("Wallet", { "walletId": walletId, "balance": walletBalance });
+                                PaymentRepository.addPaymentMethod(currentUser, wallet);
+                            }
+                            else {
+                                const amount:number = parseInt(prompt("Enter Amount: "));
+                                PaymentService.processPayment(currentUser,wallet,amount);
+                            }
                             break;
                         case 5:
-                            currentUser = null;
+                            const bankCode = prompt("Enter Bank Code: ");
+                            const accNumber = parseInt(prompt("Enter Account Number: "));
+                            if(!PaymentService.validateNetBanking({"bankCode":bankCode,"accountNumber":accNumber}))
+                                break;
+                            const banking = PaymentFactory.createPaymentMethod("Net Banking",{"bankCode":bankCode,"accountNumber":accNumber});
+                            const amount:number = parseInt(prompt("Enter Amount: "));
+                            PaymentService.processPayment(currentUser,banking,amount);
                             break;
                         default:
+                            console.log("❌ Invalid Payment Method");
                             break;
                     }
                     break;

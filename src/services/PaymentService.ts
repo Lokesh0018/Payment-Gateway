@@ -2,7 +2,7 @@ import promptSync from "prompt-sync"; import Transaction from "../models/Transac
 import User from "../models/User";
 import PaymentMethod from "../payment methods/PaymentMethod";
 import TransactionRepository from "../repository/TransactionRepository";
-import { Credit, Debit, UPI } from "../types/enum";
+import { Banking, Credit, Debit, PaymentType, UPI, Wallet } from "../types/enum";
 import PaymentRepository from "../repository/PaymentRepository";
 
 const prompt = promptSync();
@@ -49,17 +49,57 @@ export default class PaymentService {
             return false;
         }
 
-        if(!upiPin || (upiPin.length !== 4 && upiPin.length !== 6)){
+        const pinLength = Math.ceil(Math.log10(upiPin));
+
+        if(!upiPin || (pinLength !== 4 && pinLength !== 6)){
             console.log("\n❌ Invalid UPI Pin ");
         }
-        
+
+        return true;
+    }
+
+    static validateWallet(walletDetails:Wallet):boolean{
+        const walletId = walletDetails.walletId;
+        const balance = walletDetails.balance;
+        if(!walletId){
+            console.log("\n❌ Invalid Wallet Id");
+            return false;
+        }
+
+        if(!balance){
+            console.log("\n❌ Invalid Balance Amount");
+            return false;
+        }
+
+        return true;
+    }
+
+    static validateNetBanking(bankingDetails:Banking){
+        const bankCode = bankingDetails.bankCode;
+        const accNumber = bankingDetails.accountNumber;
+
+        if(!bankCode){
+            console.log("\n❌ Invalid Bank Code");
+            return false;
+        }
+
+        if(!accNumber || Math.ceil(Math.log10(accNumber)) !== 18){
+            console.log("\n❌ Invalid Account Number");
+            return false;
+        }
+
         return true;
     }
 
     static processPayment(user: User, paymentMethod: PaymentMethod, amount: number): void {
         console.log("\nProcessing Payment...");
+        if(!amount){
+            console.log("❌ Invalid Amount");
+            return;
+        }
         const tax = paymentMethod.calculateFee(amount);
         const totalAmount = amount + tax;
+
 
         const transaction = new Transaction(user.getEmail(), paymentMethod.getPaymentType(), totalAmount, new Date(), "Failed");
 
@@ -107,8 +147,17 @@ export default class PaymentService {
             (t) => t.transactionId === transactionId
         );
 
+
         if (!transaction) {
             console.log("\n❌ Refund Failed: Transaction not found");
+            return;
+        }
+
+        const paymentType:PaymentType = transaction.paymentMethod;
+        const paymentMethod = PaymentRepository.getPaymentMethod(paymentType,email); 
+
+        if(!paymentMethod?.isRefundable()){
+            console.log(`❌ ${paymentType} was not Eligible for Refund`);
             return;
         }
 
@@ -122,8 +171,6 @@ export default class PaymentService {
             return;
         }
 
-        const paymentType = transaction.paymentMethod;
-        const paymentMethod = PaymentRepository.getPaymentMethod(paymentType,email); 
         let amount = transaction.transactionAmount;
         amount -= paymentMethod?.calculateFee(amount) ?? 0;
         paymentMethod!.setDailyLimit(paymentMethod!.getDailyLimit() + amount);
