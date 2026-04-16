@@ -61,7 +61,7 @@ function main() {
                                 const expiry = prompt("Enter Expiry: ");
                                 if (!PaymentService.validateCardDetails({ cardNumber: cardNumber, cvv: cvv, expiry: expiry }))
                                     break;
-                                const card: DebitCard = PaymentFactory.createPaymentMethod("Credit Card", { cardNumber: cardNumber, cvv: cvv, expiry: expiry }) as DebitCard;
+                                const card: DebitCard = PaymentFactory.createPaymentMethod("Debit Card", { cardNumber: cardNumber, cvv: cvv, expiry: expiry }) as DebitCard;
                                 PaymentRepository.addPaymentMethod(currentUser, card);
                             }
                             else {
