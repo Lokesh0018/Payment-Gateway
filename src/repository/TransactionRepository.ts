@@ -3,17 +3,28 @@ import User from "../models/User";
 
 export default class TransactionRepository {
 
-    static #TransactionRepo: Record<User["email"], Transaction[]> = {};
+    private static TransactionRepo: Record<User["email"], Transaction[]> = {};
 
     static addTransaction(transaction: Transaction): void {
-        const userId: string = transaction.email;
-        if (!this.#TransactionRepo[userId])
-            this.#TransactionRepo[userId] = [];
-        this.#TransactionRepo[userId].push(transaction);
+        const email: string = transaction.email;
+        if (!this.TransactionRepo[email])
+            this.TransactionRepo[email] = [];
+        this.TransactionRepo[email].push(transaction);
     }
 
-    static getTransactions(userId: string): Transaction[] {
-        return this.#TransactionRepo[userId] || [];
+    static getTransactions(email: string): Transaction[] {
+        return this.TransactionRepo[email] || [];
+    }
+
+    static printTransactions(email:string):void {
+        const transactions = this.getTransactions(email);
+        if(!transactions){
+            console.log("Empty Transactions!");
+            return;
+        }
+        for(const t of transactions){
+            console.log(`${t.transactionId} ->  ₹${t.transactionAmount} -> ${t.transactionStatus}`);
+        }
     }
 
 }

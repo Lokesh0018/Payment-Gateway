@@ -8,22 +8,37 @@ import { PaymentType } from "../types/enum";
 
 export default class PaymentRepository {
 
-    static savedPayments: Map<User["email"], Map<PaymentType,PaymentMethod>> = new Map();
+    static savedPayments: Map<User["email"], Map<PaymentType, PaymentMethod>> = new Map();
 
-    static addPaymentMethod(user:User,paymentMethod:PaymentMethod) { 
+    static addPaymentMethod(user: User, paymentMethod: PaymentMethod) {
         const email = user.getEmail();
-        if(!this.savedPayments.has(email)){
-            this.savedPayments.set(email,new Map<PaymentType,PaymentMethod>());
+        if (!this.savedPayments.has(email)) {
+            this.savedPayments.set(email, new Map<PaymentType, PaymentMethod>());
         }
-        const userPayments = this.savedPayments.get(email);        
-        if(!(userPayments?.has(paymentMethod.getPaymentType()))){
-            userPayments?.set(paymentMethod.getPaymentType(),paymentMethod);
+        const userPayments = this.savedPayments.get(email);
+        if (!(userPayments?.has(paymentMethod.getPaymentType()))) {
+            userPayments?.set(paymentMethod.getPaymentType(), paymentMethod);
             console.log(`✅ ${paymentMethod.getPaymentType()} Added Successfully`);
         }
     }
 
-    static getCreditCard(email:User["email"]):PaymentMethod | undefined {
-        return this.savedPayments.get(email)?.get("Credit Card");
+    static getPaymentMethod(paymentType: PaymentType, email: User["email"]): PaymentMethod | undefined {
+        return this.savedPayments.get(email)?.get(paymentType);
+    }
+
+    static getPaymentMethods(email: User["email"]) {
+        const saved = this.savedPayments.get(email);
+        if (!saved) {
+            console.log("Empty Saved Methods!");
+            return;
+        }
+        let idx = 1;
+        for (const [k, v] of saved) {
+            if (v.getPaymentType() === "Credit Card") {
+                const paymentDetails = JSON.parse(JSON.stringify(v.getPaymentDetails()));
+                console.log(`${idx++}. ${k} (${paymentDetails["cardNumber"]})`)
+            }
+        }
     }
 
 }

@@ -8,7 +8,7 @@ export default abstract class CardPayments extends PaymentMethod implements OtpM
     private otp:number;
 
     constructor(cardType:"Credit Card" | "Debit Card",cardDetails:Credit | Debit,dailyLimit:number,transactionFee:number){
-        super(dailyLimit,transactionFee);
+        super(dailyLimit,transactionFee,cardDetails);
         this.cardType = cardType;
         this.cardDetails = cardDetails;
         this.otp = 0;

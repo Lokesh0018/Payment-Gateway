@@ -7,10 +7,12 @@ export default abstract class PaymentMethod implements RequireOtp,Refundable,Sav
     
     private dailyLimit:number;
     private transactionFee:number;
+    private paymentDetails; 
 
-    constructor(dailyLimit:number,transactionFee:number){
+    constructor(dailyLimit:number,transactionFee:number,paymentDetails:any){
         this.dailyLimit = dailyLimit;
         this.transactionFee = transactionFee;
+        this.paymentDetails = paymentDetails;
     }
 
     getDailyLimit():number {
@@ -27,6 +29,10 @@ export default abstract class PaymentMethod implements RequireOtp,Refundable,Sav
 
     checkLimit(amount: number): boolean {
         return amount <= this.dailyLimit;
+    }
+
+    getPaymentDetails(){
+        return this.paymentDetails;
     }
 
     abstract requireOtp(): boolean;

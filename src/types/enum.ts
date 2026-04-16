@@ -38,3 +38,5 @@ export type PaymentMethods = {
 };
 
 export type PaymentType = "Credit Card" | "Debit Card" | "UPI" | "Wallet" | "Net Banking";
+
+export type TransactionStatus = "Success" | "Failed" | "Refunded";

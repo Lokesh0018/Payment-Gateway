@@ -18,17 +18,29 @@ export default class PaymentService {
             console.log("❌ Invalid CVV");
             return false;
         }
-        const date = new Date();
+
         const expiry = cardDetails.expiry.split("/");
-        if (!expiry || expiry.length !== 2 || date.getFullYear() < parseInt(expiry[1]) || (date.getFullYear() === parseInt(expiry[1]) && date.getMonth() > parseInt(expiry[0]))) {
+        const expiryMonth = parseInt(expiry[0]);
+        const expiryYear = parseInt(expiry[1]);
+
+        if (!expiryMonth || !expiryYear || expiryMonth < 1 || expiryMonth > 12) {
+            console.log("❌ Invalid Expiry Date");
+            return false;
+        }
+
+        const date = new Date();
+        const year = date.getFullYear() % 100;
+        const month = date.getMonth() + 1;
+
+        if (year > expiryYear || (year === expiryYear && month > expiryMonth)) {
             console.log("❌ Card Expired");
             return false;
         }
         return true;
     }
 
-    static processPayment(user: User, paymentMethod: PaymentMethod, amount: number):void {
-        console.log("Processing Payment...");
+    static processPayment(user: User, paymentMethod: PaymentMethod, amount: number): void {
+        console.log("\nProcessing Payment...");
         const tax = paymentMethod.calculateFee(amount);
         const totalAmount = amount + tax;
 
@@ -41,13 +53,13 @@ export default class PaymentService {
         }
 
         if (paymentMethod.requireOtp()) {
-            console.log("🔐 OTP Required")
+            console.log("\n🔐 OTP Required")
             const otp: number = paymentMethod.generateOtp();
             let enteredOtp = parseInt(prompt("Enter OTP: "));
 
             while (!paymentMethod.verifyOtp(enteredOtp)) {
-                console.log("❌ Payment Failed: Invalid OTP");
-                console.log("1. Try Again\n2. Cancle Payment");
+                console.log("\n❌ Payment Failed: Invalid OTP\n");
+                console.log("\n1. Try Again\n2. Cancle Payment\n");
                 const choice = parseInt(prompt("Enter choice: "));
                 switch (choice) {
                     case 1:
@@ -60,29 +72,29 @@ export default class PaymentService {
                         console.log("❌ Invalid Choice");
                 }
             }
-            TransactionRepository.addTransaction(transaction);
         }
 
-        paymentMethod.setDailyLimit(paymentMethod.getDailyLimit() - totalAmount) ;
+        paymentMethod.setDailyLimit(paymentMethod.getDailyLimit() - totalAmount);
 
-        console.log("✅ Payment Successful!");
+        console.log("\n✅ Payment Successful!");
         transaction.transactionStatus = "Success";
         TransactionRepository.addTransaction(transaction);
-        console.log(`Transaction Id: ${transaction.transactionId}`)
+        console.log(`\nTransaction Id: ${transaction.transactionId}`)
     }
 
-    refund(user:User,transactionId: string, paymentMethod: PaymentMethod, amount: number): boolean {
-        console.log("Refund Processing");
-        const transactions = TransactionRepository.getTransactions(user.getEmail());
+    static refund(email: User["email"]): boolean {
+        const transactionId: string = prompt("Enter Transaction Id: ");
+        console.log("\nChecking Refund Eligibility...\n");
+        const transactions = TransactionRepository.getTransactions(email);
         const transaction = transactions.find(
             (t) => t.transactionId === transactionId
         );
         if (!transaction) {
-            console.log("Refund Failed: Transaction not found");
+            console.log("❌ Refund Failed: Transaction not found");
             return false;
         }
-        if (transaction.transactionStatus !== "Success") {
-            console.log("Refund Failed: Not a successful transaction");
+        if (transaction.transactionStatus === "Refunded") {
+            console.log("Already Refunded !");
             return false;
         }
         paymentMethod.setDailyLimit(paymentMethod.getDailyLimit() + amount);
