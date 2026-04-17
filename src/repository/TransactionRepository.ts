@@ -3,17 +3,17 @@ import User from "../models/User";
 
 export default class TransactionRepository {
 
-    private static TransactionRepo: Record<User["email"], Transaction[]> = {};
+    private static TransactionRepo: Map<User["email"], Transaction[]> = new Map();
 
     static addTransaction(transaction: Transaction): void {
-        const email: string = transaction.email;
-        if (!this.TransactionRepo[email])
-            this.TransactionRepo[email] = [];
-        this.TransactionRepo[email].push(transaction);
+        const email: string = transaction.getEmail();
+        if (!this.TransactionRepo.get(email))
+            this.TransactionRepo.set(email,[]);
+        this.TransactionRepo.get(email)?.push(transaction);
     }
 
     static getTransactions(email: string): Transaction[] {
-        return this.TransactionRepo[email] || [];
+        return this.TransactionRepo.get(email) || [];
     }
 
     static printTransactions(email:string):void {
@@ -23,7 +23,7 @@ export default class TransactionRepository {
             return;
         }
         for(const t of transactions){
-            console.log(`${t.transactionId} ->  ₹${t.transactionAmount} -> ${t.transactionStatus}`);
+            console.log(`${t.getTransactionId()} ->  ₹${t.getTransactionAmount()} -> ${t.getTransactionStatus()}`);
         }
     }
 

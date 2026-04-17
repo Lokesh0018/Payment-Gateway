@@ -140,9 +140,9 @@ export default class PaymentService {
         paymentMethod.setDailyLimit(paymentMethod.getDailyLimit() - totalAmount);
 
         console.log("\n✅ Payment Successful!");
-        transaction.transactionStatus = "Success";
+        transaction.setTransactionStatus("Success");
         TransactionService.addTransaction(transaction);
-        console.log(`\nTransaction Id: ${transaction.transactionId}`)
+        console.log(`\nTransaction Id: ${transaction.getTransactionId()}`)
     }
 
     static refund(email: User["email"]): void {
@@ -150,7 +150,7 @@ export default class PaymentService {
         console.log("\nChecking Refund Eligibility...\n");
         const transactions = TransactionService.getTransactions(email);
         const transaction = transactions.find(
-            (t) => t.transactionId === transactionId
+            (t) => t.getTransactionId() === transactionId
         );
 
 
@@ -159,7 +159,7 @@ export default class PaymentService {
             return;
         }
 
-        const paymentType: PaymentType = transaction.paymentMethod;
+        const paymentType: PaymentType = transaction.getPaymentMethod();
         const paymentMethod = PaymentRepository.getPaymentMethod(paymentType, email);
 
         if (!paymentMethod?.isRefundable()) {
@@ -167,20 +167,20 @@ export default class PaymentService {
             return;
         }
 
-        if (transaction.transactionStatus === "Refunded") {
+        if (transaction.getTransactionStatus() === "Refunded") {
             console.log("\nAlready Refunded !");
             return;
         }
 
-        if (transaction.transactionStatus === "Failed") {
+        if (transaction.getTransactionStatus() === "Failed") {
             console.log("\n❌ It was a Failed Transaction !");
             return;
         }
 
-        let amount = transaction.transactionAmount;
+        let amount = transaction.getTransactionAmount();
         amount -= paymentMethod?.calculateFee(amount) ?? 0;
         paymentMethod!.setDailyLimit(paymentMethod!.getDailyLimit() + amount);
-        transaction.transactionStatus = "Refunded";
+        transaction.setTransactionStatus("Refunded");
         console.log("\n✅ Refund Initiated Successfully!");
     }
 
