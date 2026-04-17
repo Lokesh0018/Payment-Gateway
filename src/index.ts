@@ -16,9 +16,19 @@ function main() {
             console.log("\n1. Register\n2. Login\n3. Exit\n");
             const choice = parseInt(prompt("Choice: "));
 
-            if (choice === 1) UserService.registerUser();
+            if (choice === 1) {
+                const username: string = prompt("Enter Name: ");
+                const email: string = prompt("Enter Email: ");
+                const phno: string = prompt("Enter Phone: ");
+                const password: string = prompt("Enter Password: ");
+                UserService.registerUser(username, email, phno, password);
+            }
 
-            else if (choice === 2) currentUser = UserService.loginUser();
+            else if (choice === 2) {
+                const email: string = prompt("Enter Email: ");
+                const password: string = prompt("Enter Password: ");
+                currentUser = UserService.loginUser(email, password);
+            }
 
             else if (choice === 3) process.exit(0);
         }
@@ -92,18 +102,18 @@ function main() {
                                 PaymentService.addPaymentMethod(currentUser, wallet);
                             }
                             else {
-                                const amount:number = parseInt(prompt("Enter Amount: "));
-                                PaymentService.processPayment(currentUser,wallet,amount);
+                                const amount: number = parseInt(prompt("Enter Amount: "));
+                                PaymentService.processPayment(currentUser, wallet, amount);
                             }
                             break;
                         case 5:
                             const bankCode = prompt("Enter Bank Code: ");
                             const accNumber = parseInt(prompt("Enter Account Number: "));
-                            if(!PaymentService.validateNetBanking({"bankCode":bankCode,"accountNumber":accNumber}))
+                            if (!PaymentService.validateNetBanking({ "bankCode": bankCode, "accountNumber": accNumber }))
                                 break;
-                            const banking = PaymentService.createPaymentMethod("Net Banking",{"bankCode":bankCode,"accountNumber":accNumber});
-                            const amount:number = parseInt(prompt("Enter Amount: "));
-                            PaymentService.processPayment(currentUser,banking,amount);
+                            const banking = PaymentService.createPaymentMethod("Net Banking", { "bankCode": bankCode, "accountNumber": accNumber });
+                            const amount: number = parseInt(prompt("Enter Amount: "));
+                            PaymentService.processPayment(currentUser, banking, amount);
                             break;
                         default:
                             console.log("❌ Invalid Payment Method");

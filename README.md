@@ -1,182 +1,100 @@
 # Payment Gateway
 
-This is a TypeScript-based payment gateway system.
+A comprehensive TypeScript-based payment gateway system supporting multiple payment methods including credit cards, debit cards, digital wallets, UPI, and net banking. The system implements design patterns and interfaces for extensibility and maintainability.
 
-## Class Diagram
+## Project Overview
 
-```mermaid
-classDiagram
-    class OtpVerifiable {
-        <<interface>>
-        +requireOtp() boolean
-        +generateOtp() number
-        +verifyOtp(otp: number) boolean
-    }
-    
-    class Refundable {
-        <<interface>>
-        +isRefundable() boolean
-    }
-    
-    class Savable {
-        <<interface>>
-        +isSavable() boolean
-    }
-    
-    class PaymentMethod {
-        <<abstract>>
-        -dailyLimit: number
-        -transactionFee: number
-        -paymentDetails: PaymentDetails
-        -otp: number
-        +getDailyLimit() number
-        +calculateFee(amount: number) number
-        +requireOtp()* boolean
-        +isRefundable()* boolean
-        +isSavable()* boolean
-    }
-    
-    PaymentMethod ..|> OtpVerifiable
-    PaymentMethod ..|> Refundable
-    PaymentMethod ..|> Savable
-    
-    class CardPayments {
-        <<abstract>>
-        -cardType: string
-        +getCardType() string
-    }
-    
-    CardPayments --|> PaymentMethod
-    
-    class DigitalPayments {
-        <<abstract>>
-        -paymentType: string
-        +getPaymentType() string
-    }
-    
-    DigitalPayments --|> PaymentMethod
-    
-    class CreditCard {
-        -cardDetails: Credit
-        +getCardNumber() number
-        +getCvv() number
-    }
-    
-    CreditCard --|> CardPayments
-    
-    class DebitCard {
-        -cardDetails: Debit
-        +getCardNumber() number
-        +getCvv() number
-    }
-    
-    DebitCard --|> CardPayments
-    
-    class DigitalWallet {
-        -walletDetails: Wallet
-        +getWalletId() string
-        +getWalletBalance() number
-        +isRefundable() boolean
-    }
-    
-    DigitalWallet --|> DigitalPayments
-    
-    class Upi {
-        -upiDetails: UPI
-        +getUpiId() string
-        +getUpiPin() number
-        +isRefundable() boolean
-    }
-    
-    Upi --|> DigitalPayments
-    
-    class NetBanking {
-        -bankingDetails: Banking
-        +getBankCode() string
-        +getAccountNumber() number
-    }
-    
-    NetBanking --|> PaymentMethod
-    
-    class User {
-        -username: string
-        -email: string
-        -phno: string
-        -password: string
-        +getUsername() string
-        +getEmail() string
-        +getPhno() string
-        +getPassword() string
-    }
-    
-    class Transaction {
-        +email: string
-        +transactionId: string
-        +paymentMethod: PaymentType
-        +transactionAmount: number
-        +transactionTimeStamp: Date
-        +transactionStatus: TransactionStatus
-    }
-    
-    class PaymentService {
-        +validateCardDetails(cardDetails) boolean
-        +processPayment(user, paymentMethod, amount) void
-        +refund(email) void
-        +addPaymentMethod(user, paymentMethod) void
-    }
-    
-    PaymentService --> User
-    PaymentService --> PaymentMethod
-    PaymentService --> Transaction
-    
-    class TransactionService {
-        +printTransactions(email) void
-        +generateTransaction() string
-        +addTransaction(transaction) void
-        +getTransactions(email) Transaction[]
-    }
-    
-    TransactionService --> Transaction
-    
-    class UserService {
-        +registerUser() void
-        +loginUser() User
-    }
-    
-    UserService --> User
-    
-    class PaymentRepository {
-        -savedPayments: Map
-        +addPaymentMethod(user, paymentMethod) void
-        +getPaymentMethod(paymentType, email) PaymentMethod
-    }
-    
-    PaymentRepository --> User
-    PaymentRepository --> PaymentMethod
-    
-    class TransactionRepository {
-        -TransactionRepo: Record
-        +addTransaction(transaction) void
-        +getTransactions(email) Transaction[]
-    }
-    
-    TransactionRepository --> Transaction
-    
-    class UserRepository {
-        -users: Map
-        +addUser(user) void
-        +getUser(email) User
-    }
-    
-    UserRepository --> User
-    
-    class PaymentFactory {
-        +createPaymentMethod(paymentType, paymentDetails) PaymentMethod
-    }
-    
-    PaymentFactory --> CreditCard
-    PaymentFactory --> DebitCard
-    PaymentFactory --> DigitalWallet
-    PaymentFactory --> Upi
-    PaymentFactory --> NetBanking
+This payment gateway project demonstrates a well-architected payment processing system with the following key features:
+
+- **Multi-Payment Method Support**: Credit cards, debit cards, digital wallets, UPI, and net banking
+- **Security Features**: OTP verification, refund capability, and payment saving functionality
+- **Object-Oriented Design**: Leverages abstract classes, interfaces, and design patterns
+- **Service-Based Architecture**: Separated concerns with dedicated services for users, transactions, and payments
+- **Repository Pattern**: Data persistence layer for users, transactions, and payment methods
+- **Factory Pattern**: Dynamic payment method creation based on type
+
+## Project Structure
+
+- `src/models`: domain entities such as `User` and `Transaction`
+- `src/services`: business logic for user, payment, and transaction operations
+- `src/repository`: in-memory data storage and retrieval
+- `src/payment methods`: payment abstractions and concrete implementations
+- `src/patterns`: factory and creation logic for payment methods
+- `src/interfaces`: reusable interface contracts
+- `src/types`: shared TypeScript type definitions
+
+## Setup Instructions
+
+### Prerequisites
+- Node.js (v18.20.8 or higher)
+- npm (v10.8.2 or higher)
+- TypeScript knowledge (helpful but not required)
+
+### Installation Steps
+
+1. **Clone the repository**
+   ```bash
+   git clone "https://github.com/Lokesh0018/Payment-Gateway.git"
+   cd payment-gateway
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Run the demo**
+   ```bash
+   npm run start
+   ```
+
+4. **Verify installation**
+   ```bash
+   npm -v
+   ```
+
+## How to Run Demo
+
+To execute the payment gateway system:
+
+```bash
+npm run start
 ```
+
+Or use TypeScript directly:
+
+```bash
+npx tsx src/index.ts
+```
+
+This will run the main application which demonstrates:
+- User registration and authentication
+- Payment method creation and management
+- Transaction processing
+- Refund operations
+- OTP verification for secure transactions
+
+## Design Highlights
+
+### Architecture
+- **Layered Architecture**: Separated into models, services, repositories, and patterns
+- **Abstraction**: PaymentMethod as an abstract base class with multiple concrete implementations
+- **Interface Segregation**: Separate interfaces for OtpVerifiable, Refundable, and Savable features
+- **Factory Pattern**: PaymentFactory for creating payment method instances
+- **Type Safety**: Comprehensive TypeScript types for payment types, transaction statuses, and user data
+
+### Key Components
+- **Services**: UserService, PaymentService, TransactionService for business logic
+- **Repositories**: UserRepository, PaymentRepository, TransactionRepository for data management
+- **Payment Hierarchy**: CardPayments and DigitalPayments as intermediate abstractions with specialized implementations
+- **Security**: OTP generation and verification, transaction status tracking
+
+## Assumptions Made
+
+1. **In-Memory Storage**: The repositories use in-memory collections (Map, Record) for data storage. No external database is integrated.
+2. **Transaction IDs**: Generated as unique strings during transaction creation.
+3. **OTP Validation**: OTP is generated randomly and validated against stored values. In production, this would use actual SMS/Email services.
+4. **Payment Limits**: Daily transaction limits are enforced per payment method instance.
+5. **No Authentication**: User authentication in this demo is simplified. Production systems should use proper credential hashing and token-based authentication.
+6. **Refund Logic**: All eligible payment methods can be refunded. Refund details are stored but not yet implemented with rollback logic.
+7. **Single Currency**: The system assumes a single currency throughout. Multi-currency support would require additional configuration.

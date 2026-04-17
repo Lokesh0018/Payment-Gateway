@@ -59,6 +59,7 @@ export default class PaymentService {
 
         if (!upiPin || (pinLength !== 4 && pinLength !== 6)) {
             console.log("\n❌ Invalid UPI Pin ");
+            return false;
         }
 
         return true;
@@ -133,6 +134,7 @@ export default class PaymentService {
                         return;
                     default:
                         console.log("❌ Invalid Choice");
+                        break;
                 }
             }
         }

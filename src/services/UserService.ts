@@ -1,16 +1,9 @@
-import promptSync from "prompt-sync";
 import User from "../models/User";
 import UserRepository from "../repository/UserRepository";
 
-const prompt = promptSync();
-
 export default class UserService {
 
-    static registerUser(): void {
-        const username:string = prompt("Enter Name: ");
-        const email:string = prompt("Enter Email: ");
-        const phno:string = prompt("Enter Phone: ");
-        const password:string = prompt("Enter Password: ");
+    static registerUser(username: string, email: string, phno: string, password: string): void {
 
         if (!username || !email || !phno || !password) {
             console.log("All fields are required. Please try again.");
@@ -28,10 +21,8 @@ export default class UserService {
         console.log("✅ Registration Successful!");
     }
 
-    static loginUser(): User | null {
-        const email:string = prompt("Enter Email: ");
-        const password:string = prompt("Enter Password: ");
-
+    static loginUser(email: string, password: string): User | null {
+        
         const user = UserRepository.getUser(email);
 
         if (!user) {
